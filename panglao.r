@@ -3,7 +3,8 @@ panglao <- function(genes,species1='human',tumor=F,nonadult=F){
   require(rvest)
   
   # assemble URL
-  genes <- paste0(genes,collapse=',')
+  genes <- genes %>% str_remove_all('-') %>% str_remove('\\..*') %>% 
+    paste0(collapse=',')
   species1 <- tolower(species1)
   if(species1 %in% c('h','human','hs','hu')) species1 <- 3
   if(species1 %in% c('m','mouse','mm','musmus','mu')) species1 <- 2
@@ -24,16 +25,21 @@ panglao <- function(genes,species1='human',tumor=F,nonadult=F){
   data.table::fread(url2) %>% 
     set_names(c('species','gene','source','index','tissue','type','rank')) %>% 
     select(-source,-index) %>% 
+    # filter(type!='Unknown') %>% 
     mutate(type=case_when(type=='Gamma delta T cells'~'GD T cells',
         type=='Erythroid-like and erythroid precursor cells'~'Erythroid',
         type=='Plasmacytoid dendritic cells'~'pDC',
         type=='Dendritic cells'~'DC',
+        type=='Luminal epithelial cells'~'Luminal epi cells',
+        type=='Endothelial cells'~'EC',
+        type=='Pulmonary alveolar type II cells'~'Alveolar type II',
         T ~ type))
 }
 
 panglaoMain <- function(...){
   data <- panglao(...)
   table(data$type) %>% sort(decreasing=T) %>% as.data.frame() %>% .[1:10,] %>% 
-    ggplot()+geom_col(aes(Var1,Freq))+
-    theme(axis.text.x=element_text(angle=90))
+    ggplot()+geom_col(aes(Var1,Freq,fill=Var1))+
+    theme(axis.text.x=element_text(angle=90),
+          legend.position='none')
 }
