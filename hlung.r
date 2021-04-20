@@ -81,9 +81,9 @@ topMark <- map(group_split(allMark,cluster),~arrange(.x,desc(avg_log2FC)) %>% .[
   map_dfr(~.x)
 
 source('panglao.r')
-panglao2 <- function(clust){
+panglao2 <- function(clust,n=10){
   allMark %>% filter(cluster==clust) %>% arrange(desc(avg_log2FC)) %>% 
-    .$gene %>% .[1:10] %>% 
+    .$gene %>% .[1:n] %>% 
     panglaoMain()
 }
 

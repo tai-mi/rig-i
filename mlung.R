@@ -72,7 +72,7 @@ sf <- function(genes){
   genes %<>% toupper()
   if(length(genes)==1){
     rownames(dat[['RNA']]@data)[str_detect(rownames(dat[['RNA']]@data),genes)]
-  } else rownames(dat[['RNA']]@data)[genes %in% rownames(dat[['RNA']]@data)]
+  } else genes[genes %in% rownames(dat[['RNA']]@data)]
 }
 explot <- function(genes){
   genes <- toupper(genes)
