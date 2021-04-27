@@ -15,7 +15,7 @@ gs <- readxl::read_xlsx('data/rig-i genes.xlsx',sheet='Sheet1') %>%
   select(-protein) %>% 
   filter(gene!='IFNB3')
 ggs <- function(title,w=6,h=4){
-  ggsave(paste0('figures/mlung_',title,'.png'),width=w,height=h)
+  ggsave(paste0('figures/hlung_',title,'.png'),width=w,height=h)
 }
 explot <- function(genes,x1='q95',x2='q1'){
   genes <- toupper(genes)
@@ -35,7 +35,7 @@ sf <- function(genes){
 
 # cycle -------------------------------------------------------------------
 
-dat <- readRDS('data/mouse_lung.rds')
+dat <- readRDS('data/human_lung.rds')
 for(g in gs$gene){
   mxcutoff <- 'q95'
   mncutoff <- 'q1'
@@ -61,3 +61,27 @@ for(g in gs$gene){
     # }
   # }
 }
+
+# save scaled data for all and for groups
+dat <- ScaleData(dat,features=gs$gene,assay='RNA',
+                 vars.to.regress=c('nCount_RNA','nFeature_RNA','propMt'))
+rn <- rownames(dat[['RNA']]@scale.data) %>% sort()
+dat$temp <- colSums(dat[['RNA']]@scale.data)
+FeaturePlot(dat,'temp',max.cutoff='q95',min.cutoff='q5')
+ggs('scaled_all.png')
+dat$temp <- colSums(dat[['RNA']]@scale.data[gs$gene[1:3][gs$gene[1:3] %in% rn],])
+FeaturePlot(dat,'temp',max.cutoff='q95',min.cutoff='q5')
+ggs('scaled_rna_sensors.png')
+dat$temp <- colSums(dat[['RNA']]@scale.data[gs$gene[4:8][gs$gene[4:8] %in% rn],])
+FeaturePlot(dat,'temp',max.cutoff='q95',min.cutoff='q5')
+ggs('scaled_downstream_sensor_tfs.png')
+dat$temp <- colSums(dat[['RNA']]@scale.data[gs$gene[9:24][gs$gene[9:24] %in% rn],])
+FeaturePlot(dat,'temp',max.cutoff='q95',min.cutoff='q5')
+ggs('scaled_IFN1.png')
+dat$temp <- colSums(dat[['RNA']]@scale.data[gs$gene[25:26][gs$gene[25:26] %in% rn],])
+FeaturePlot(dat,'temp',max.cutoff='q95',min.cutoff='q5')
+ggs('scaled_IFN1R.png')
+dat$temp <- colSums(dat[['RNA']]@scale.data[gs$gene[27:29][gs$gene[27:29] %in% rn],])
+FeaturePlot(dat,'temp',max.cutoff='q95',min.cutoff='q5')
+ggs('scaled_downstream_ifn_tfs.png')
+
